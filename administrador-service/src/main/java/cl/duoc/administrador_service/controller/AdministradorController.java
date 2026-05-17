@@ -3,6 +3,7 @@ package cl.duoc.administrador_service.controller;
 import cl.duoc.administrador_service.dto.AdministradorDTO;
 import cl.duoc.administrador_service.model.Administrador;
 import cl.duoc.administrador_service.service.AdministradorService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class AdministradorController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registrar(@RequestBody Administrador administrador) {
+    public ResponseEntity<?> registrar(@Valid @RequestBody Administrador administrador) {
         return new ResponseEntity<>(administradorService.save(administrador), HttpStatus.CREATED);
     }
 
@@ -41,7 +42,7 @@ public class AdministradorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody Administrador administrador) {
+    public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody Administrador administrador) {
         Administrador actualizado = administradorService.update(id, administrador);
         if (actualizado == null) {
             return ResponseEntity.notFound().build();
