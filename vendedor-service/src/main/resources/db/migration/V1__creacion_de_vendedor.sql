@@ -7,5 +7,6 @@ CREATE TABLE vendedor (
     password VARCHAR(255) NOT NULL,
     sueldo INT NOT NULL,
     fecha_contrato DATE,
+    sucursal_id BIGINT, -- <--- ¡Aquí está la magia corregida!
     PRIMARY KEY (id)
 );

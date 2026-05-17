@@ -1,4 +1,4 @@
-package cl.duoc.vendedor_service.model;
+package cl.duoc.sucursal_service.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,22 +8,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
-@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vendedor {
+@Entity
+public class Sucursal {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String rut;
+    private String codigo;
     private String nombre;
-    private String apellido;
-    private String email;
-    private String password;
-    private int sueldo;
-    private LocalDate fecha_contrato;
-    private Long sucursalId;
+    private String direccion;
+    private String telefono;
+    private Long administrador; // Guarda el ID numérico del administrador
+
 }
