@@ -22,6 +22,11 @@ public class VendedorService {
         return vendedorRepository.findAll();
     }
 
+    // Lista de vendedores por sucursal
+    public List<Vendedor> obtenerVendedoresPorSucursal(Long sucursalId) {
+        return vendedorRepository.findBySucursalId(sucursalId);
+    }
+
     // Busca un vendedor por ID y lo transforma a DTO
     public VendedorDTO findById(Long id) {
         Vendedor vendedor = vendedorRepository.findById(id).orElse(null);

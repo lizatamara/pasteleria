@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/v1/vendedores")
 public class VendedorController {
@@ -47,5 +49,11 @@ public class VendedorController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(actualizado);
+    }
+
+    @GetMapping("/sucursal/{sucursalId}")
+    public ResponseEntity<List<Vendedor>> obtenerVendedoresPorSucursal(@PathVariable Long sucursalId) {
+        List<Vendedor> lista = vendedorService.obtenerVendedoresPorSucursal(sucursalId);
+        return ResponseEntity.ok(lista);
     }
 }

@@ -2,8 +2,9 @@ package cl.duoc.sucursal_service.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
+import java.util.List;
 
-@JsonPropertyOrder({ "id", "codigo", "nombre", "direccion", "telefono" , "administrador", "vendedor"})
+@JsonPropertyOrder({ "id", "codigo", "nombre", "direccion", "telefono" , "administrador", "vendedores"})
 @Data
 public class SucursalDTO {
     private Long id;
@@ -12,5 +13,5 @@ public class SucursalDTO {
     private String direccion;
     private String telefono;
     private AdministradorDTO administrador;
-    private VendedorDTO vendedor;
+    private List<VendedorDTO> vendedores;
 }

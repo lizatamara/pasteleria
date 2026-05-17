@@ -1,6 +1,5 @@
 package cl.duoc.sucursal_service.service;
 
-
 import cl.duoc.sucursal_service.clients.AdministradorFeign;
 import cl.duoc.sucursal_service.clients.VendedorFeign;
 import cl.duoc.sucursal_service.dto.AdministradorDTO;
@@ -12,6 +11,7 @@ import cl.duoc.sucursal_service.repository.SucursalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,11 +27,8 @@ public class SucursalService {
     @Autowired
     private AdministradorFeign personalFeign;
 
-    // 2. AGREGA ESTA INYECCIÓN JUSTO AQUÍ ABAJO
     @Autowired
     private VendedorFeign vendedorFeign; // Va al puerto 8086 (Vendedores)
-
-
 
     public List<SucursalDTO> findAll() {
         List<Sucursal> sucursales = sucursalRepository.findAll();
@@ -39,6 +36,7 @@ public class SucursalService {
         return sucursales.stream().map(sucursal -> {
             SucursalDTO sucursalDTO = mapper.toDTO(sucursal);
 
+            // 1. Obtener el Administrador (Uno a Uno)
             if (sucursal.getAdministrador() != null) {
                 try {
                     AdministradorDTO adminDTO = personalFeign.obtenerAdministrador(sucursal.getAdministrador());
@@ -48,22 +46,18 @@ public class SucursalService {
                 }
             }
 
-            if (sucursal.getVendedor() != null) {
-                try {
-                    // ¡OJO AQUÍ!: Ahora llamamos a vendedorFeign que va al puerto correcto (8086)
-                    VendedorDTO vendedorDTO = vendedorFeign.obtenerVendedor(sucursal.getVendedor());
-                    sucursalDTO.setVendedor(vendedorDTO);
-                } catch (Exception e) {
-                    sucursalDTO.setVendedor(null);
-                }
+            // 2. CORREGIDO: Obtener la LISTA de vendedores de esta sucursal
+            try {
+                // Le pasamos el id de la sucursal actual para que nos traiga a sus trabajadores
+                List<VendedorDTO> listaVendedores = vendedorFeign.obtenerVendedoresPorSucursal(sucursal.getId());
+                sucursalDTO.setVendedores(listaVendedores);
+            } catch (Exception e) {
+                sucursalDTO.setVendedores(new ArrayList<>()); // Si falla, devolvemos lista vacía para que no explote
             }
 
             return sucursalDTO;
         }).collect(Collectors.toList());
     }
-
-
-
 
     public SucursalDTO findById(Long id) {
         Sucursal sucursal = sucursalRepository.findById(id).orElse(null);
@@ -71,6 +65,7 @@ public class SucursalService {
 
         SucursalDTO sucursalDTO = mapper.toDTO(sucursal);
 
+        // 1. Obtener el Administrador
         if (sucursal.getAdministrador() != null) {
             try {
                 AdministradorDTO adminDTO = personalFeign.obtenerAdministrador(sucursal.getAdministrador());
@@ -80,20 +75,16 @@ public class SucursalService {
             }
         }
 
-        if (sucursal.getVendedor() != null) {
-            try {
-                // Aquí también usamos el nuevo vendedorFeign inyectado
-                VendedorDTO vendedorDTO = vendedorFeign.obtenerVendedor(sucursal.getVendedor());
-                sucursalDTO.setVendedor(vendedorDTO);
-            } catch (Exception e) {
-                sucursalDTO.setVendedor(null);
-            }
+        // 2. CORREGIDO: Obtener la LISTA de vendedores por ID de sucursal
+        try {
+            List<VendedorDTO> listaVendedores = vendedorFeign.obtenerVendedoresPorSucursal(sucursal.getId());
+            sucursalDTO.setVendedores(listaVendedores);
+        } catch (Exception e) {
+            sucursalDTO.setVendedores(new ArrayList<>());
         }
 
         return sucursalDTO;
     }
-
-
 
     public Sucursal save(Sucursal sucursal) {
         return sucursalRepository.save(sucursal);
@@ -111,7 +102,7 @@ public class SucursalService {
         sucursalActualizada.setNombre(sucursal.getNombre());
         sucursalActualizada.setDireccion(sucursal.getDireccion());
         sucursalActualizada.setTelefono(sucursal.getTelefono());
-
+        sucursalActualizada.setAdministrador(sucursal.getAdministrador()); // Aseguramos el admin
 
         return sucursalRepository.save(sucursalActualizada);
     }

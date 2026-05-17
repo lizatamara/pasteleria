@@ -4,6 +4,8 @@ import cl.duoc.vendedor_service.model.Vendedor;
 import org.hibernate.boot.models.JpaAnnotations;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface VendedorRepository extends JpaRepository<Vendedor, Long> {
+import java.util.List;
 
+public interface VendedorRepository extends JpaRepository<Vendedor, Long> {
+    List<Vendedor> findBySucursalId(Long sucursalId);
 }
