@@ -1,0 +1,8 @@
+CREATE TABLE administrador (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    rut VARCHAR(20) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
