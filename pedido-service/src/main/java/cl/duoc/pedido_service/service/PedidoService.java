@@ -3,6 +3,8 @@ package cl.duoc.pedido_service.service;
 import cl.duoc.pedido_service.clients.*;
 import cl.duoc.pedido_service.dto.PedidoDTO;
 import cl.duoc.pedido_service.dto.EventoDTO; // Aseguramos la importación del DTO
+import cl.duoc.pedido_service.dto.RecetaDTO;
+import cl.duoc.pedido_service.exception.PedidoMontoInvalidoException;
 import cl.duoc.pedido_service.mapper.PedidoMapper;
 import cl.duoc.pedido_service.model.Pedido;
 import cl.duoc.pedido_service.repository.PedidoRepository;
@@ -27,6 +29,8 @@ public class PedidoService {
     @Autowired
     private ClienteFeign clienteFeign;
 
+
+
     @Autowired
     private DespachoFeign despachoFeign;
 
@@ -35,6 +39,10 @@ public class PedidoService {
 
     @Autowired
     private EventoFeign eventoFeign;
+
+
+
+
 
     // Retorna la lista de todos los pedidos mapeados a DTO y con datos remotos cargados
     public List<PedidoDTO> findAll() {
@@ -192,8 +200,7 @@ public class PedidoService {
 
 
 
-
-    // NUESTRO MOTOR FEIGN CENTRALIZADO (Mapea todo a DTO de una sola vez)
+    // EL ÚNICO MOTOR FEIGN CENTRALIZADO (Mapea todo a DTO y procesa la cantidad automáticamente)
     private List<PedidoDTO> mappedRemoteData(List<Pedido> pedidos) {
         return pedidos.stream().map(pedido -> {
             PedidoDTO pedidoDTO = mapper.toDTO(pedido);
@@ -229,12 +236,6 @@ public class PedidoService {
 
 
 
-
-    // Guarda un nuevo pedido plano en la base de datos local
-    public Pedido save(Pedido pedido) {
-        return pedidoRepository.save(pedido);
-    }
-
     // Elimina un pedido por ID
     public void delete(Long id) {
         pedidoRepository.deleteById(id);
@@ -262,4 +263,19 @@ public class PedidoService {
 
         return pedidoRepository.save(pedidoActualizado);
     }
+    public Pedido save(Pedido pedido) {
+        // 1. Validación básica: Que el monto no sea nulo o negativo
+        if (pedido.getMonto_total() == null || pedido.getMonto_total() <= 0) {
+            throw new PedidoMontoInvalidoException("El monto total del pedido debe ser un valor mayor a $0.");
+        }
+
+        // 2. REGLA DE NEGOCIO: Monto mínimo de compra en la pastelería ($5.000)
+        if (pedido.getMonto_total() < 5000) {
+            throw new PedidoMontoInvalidoException("Monto insuficiente. Para procesar un pedido y agendar producción/despacho, el valor mínimo de compra es de $5.000.");
+        }
+
+        return pedidoRepository.save(pedido);
+    }
+
+
 }

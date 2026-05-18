@@ -32,12 +32,11 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoDTO);
     }
 
-    // Registrar un nuevo pedido (recibe el JSON plano con los IDs)
     @PostMapping
-    public ResponseEntity<?> registrar(@RequestBody Pedido pedido) {
-        return new ResponseEntity<>(pedidoService.save(pedido), HttpStatus.CREATED);
+    public ResponseEntity<?> registrar(@jakarta.validation.Valid @RequestBody Pedido pedido) {
+        Pedido nuevoPedido = pedidoService.save(pedido);
+        return new ResponseEntity<>(nuevoPedido, HttpStatus.CREATED);
     }
-
     // Borrar un pedido por ID
     @DeleteMapping("/{id}")
     public ResponseEntity<?> borrar(@PathVariable Long id) {
