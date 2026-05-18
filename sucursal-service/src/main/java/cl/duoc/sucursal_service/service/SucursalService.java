@@ -4,16 +4,14 @@ import cl.duoc.sucursal_service.clients.AdministradorFeign;
 import cl.duoc.sucursal_service.clients.VendedorFeign;
 import cl.duoc.sucursal_service.dto.AdministradorDTO;
 import cl.duoc.sucursal_service.dto.SucursalDTO;
-import cl.duoc.sucursal_service.dto.VendedorDTO;
 import cl.duoc.sucursal_service.mapper.SucursalMapper;
 import cl.duoc.sucursal_service.model.Sucursal;
 import cl.duoc.sucursal_service.repository.SucursalRepository;
+import cl.duoc.sucursal_service.exception.SucursalCodigoInvalidoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SucursalService {
@@ -25,65 +23,55 @@ public class SucursalService {
     private SucursalMapper mapper;
 
     @Autowired
-    private AdministradorFeign personalFeign;
+    private AdministradorFeign administradorFeign;
 
     @Autowired
-    private VendedorFeign vendedorFeign; // Va al puerto 8086 (Vendedores)
+    private VendedorFeign vendedorFeign;
+
+    // =========================
+    // ENRICH CENTRALIZADO
+    // =========================
+    private SucursalDTO enrich(Sucursal s) {
+        SucursalDTO dto = mapper.toDTO(s);
+
+        // ADMINISTRADOR (UNO A UNO)
+        try {
+            if (s.getAdministrador() != null) {
+                AdministradorDTO admin =
+                        administradorFeign.obtenerAdministrador(s.getAdministrador());
+                dto.setAdministrador(admin);
+            }
+        } catch (Exception e) {
+            dto.setAdministrador(null);
+        }
+
+        // VENDEDORES (UNO A MUCHOS)
+        try {
+            dto.setVendedores(
+                    vendedorFeign.obtenerVendedoresPorSucursal(s.getId())
+            );
+        } catch (Exception e) {
+            dto.setVendedores(List.of());
+        }
+
+        return dto;
+    }
+
+    // =========================
+    // CRUD
+    // =========================
 
     public List<SucursalDTO> findAll() {
-        List<Sucursal> sucursales = sucursalRepository.findAll();
-
-        return sucursales.stream().map(sucursal -> {
-            SucursalDTO sucursalDTO = mapper.toDTO(sucursal);
-
-            // 1. Obtener el Administrador (Uno a Uno)
-            if (sucursal.getAdministrador() != null) {
-                try {
-                    AdministradorDTO adminDTO = personalFeign.obtenerAdministrador(sucursal.getAdministrador());
-                    sucursalDTO.setAdministrador(adminDTO);
-                } catch (Exception e) {
-                    sucursalDTO.setAdministrador(null);
-                }
-            }
-
-            // 2. CORREGIDO: Obtener la LISTA de vendedores de esta sucursal
-            try {
-                // Le pasamos el id de la sucursal actual para que nos traiga a sus trabajadores
-                List<VendedorDTO> listaVendedores = vendedorFeign.obtenerVendedoresPorSucursal(sucursal.getId());
-                sucursalDTO.setVendedores(listaVendedores);
-            } catch (Exception e) {
-                sucursalDTO.setVendedores(new ArrayList<>()); // Si falla, devolvemos lista vacía para que no explote
-            }
-
-            return sucursalDTO;
-        }).collect(Collectors.toList());
+        return sucursalRepository.findAll()
+                .stream()
+                .map(this::enrich)
+                .toList();
     }
 
     public SucursalDTO findById(Long id) {
-        Sucursal sucursal = sucursalRepository.findById(id).orElse(null);
-        if (sucursal == null) return null;
-
-        SucursalDTO sucursalDTO = mapper.toDTO(sucursal);
-
-        // 1. Obtener el Administrador
-        if (sucursal.getAdministrador() != null) {
-            try {
-                AdministradorDTO adminDTO = personalFeign.obtenerAdministrador(sucursal.getAdministrador());
-                sucursalDTO.setAdministrador(adminDTO);
-            } catch (Exception e) {
-                sucursalDTO.setAdministrador(null);
-            }
-        }
-
-        // 2. CORREGIDO: Obtener la LISTA de vendedores por ID de sucursal
-        try {
-            List<VendedorDTO> listaVendedores = vendedorFeign.obtenerVendedoresPorSucursal(sucursal.getId());
-            sucursalDTO.setVendedores(listaVendedores);
-        } catch (Exception e) {
-            sucursalDTO.setVendedores(new ArrayList<>());
-        }
-
-        return sucursalDTO;
+        return sucursalRepository.findById(id)
+                .map(this::enrich)
+                .orElse(null);
     }
 
     public Sucursal save(Sucursal sucursal) {
@@ -95,15 +83,77 @@ public class SucursalService {
     }
 
     public Sucursal update(Long id, Sucursal sucursal) {
-        Sucursal sucursalActualizada = sucursalRepository.findById(id).orElse(null);
-        if (sucursalActualizada == null) return null;
+        Sucursal s = sucursalRepository.findById(id).orElse(null);
+        if (s == null) return null;
 
-        sucursalActualizada.setCodigo(sucursal.getCodigo());
-        sucursalActualizada.setNombre(sucursal.getNombre());
-        sucursalActualizada.setDireccion(sucursal.getDireccion());
-        sucursalActualizada.setTelefono(sucursal.getTelefono());
-        sucursalActualizada.setAdministrador(sucursal.getAdministrador()); // Aseguramos el admin
+        s.setCodigo(sucursal.getCodigo());
+        s.setNombre(sucursal.getNombre());
+        s.setDireccion(sucursal.getDireccion());
+        s.setTelefono(sucursal.getTelefono());
+        s.setAdministrador(sucursal.getAdministrador());
 
-        return sucursalRepository.save(sucursalActualizada);
+        return sucursalRepository.save(s);
+    }
+
+    // =========================
+    // VALIDACIÓN NEGOCIO
+    // =========================
+    public Sucursal guardarSucursal(Sucursal sucursal) {
+
+        if (sucursal.getCodigo() == null || sucursal.getCodigo().isBlank()) {
+            throw new SucursalCodigoInvalidoException("El código es obligatorio");
+        }
+
+        if (!sucursal.getCodigo().startsWith("SUC-")) {
+            throw new SucursalCodigoInvalidoException(
+                    "El código debe iniciar con SUC-"
+            );
+        }
+
+        return sucursalRepository.save(sucursal);
+    }
+
+    // =========================
+    // REPORTES
+    // =========================
+
+    public SucursalDTO buscarPorCodigo(String codigo) {
+        return sucursalRepository.findAll().stream()
+                .filter(s -> s.getCodigo().equalsIgnoreCase(codigo))
+                .map(this::enrich)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public List<SucursalDTO> buscarPorNombre(String nombre) {
+        return sucursalRepository.findAll().stream()
+                .filter(s -> s.getNombre().toLowerCase().contains(nombre.toLowerCase()))
+                .map(this::enrich)
+                .toList();
+    }
+
+    public List<SucursalDTO> buscarPorComuna(String comuna) {
+        return sucursalRepository.findAll().stream()
+                .filter(s -> s.getDireccion().toLowerCase().contains(comuna.toLowerCase()))
+                .map(this::enrich)
+                .toList();
+    }
+
+    public SucursalDTO buscarPorTelefono(String telefono) {
+        return sucursalRepository.findAll().stream()
+                .filter(s -> s.getTelefono().equals(telefono))
+                .map(this::enrich)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public List<SucursalDTO> buscarPorFiltroDoble(String nombre, String comuna) {
+        return sucursalRepository.findAll().stream()
+                .filter(s ->
+                        s.getNombre().toLowerCase().contains(nombre.toLowerCase()) &&
+                                s.getDireccion().toLowerCase().contains(comuna.toLowerCase())
+                )
+                .map(this::enrich)
+                .toList();
     }
 }

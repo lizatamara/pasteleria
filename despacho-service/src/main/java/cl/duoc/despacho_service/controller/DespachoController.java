@@ -46,7 +46,7 @@ public class DespachoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody Despacho despacho) {
+    public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody Despacho despacho) {
         Despacho despachoModificado = despachoService.update(id, despacho);
         if (despachoModificado == null) {
             return ResponseEntity.notFound().build();

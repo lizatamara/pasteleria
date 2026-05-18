@@ -1,6 +1,7 @@
 package cl.duoc.cliente_service.service;
 
 import cl.duoc.cliente_service.dto.ClienteDTO;
+import cl.duoc.cliente_service.exception.ClienteCorreoInvalidoException;
 import cl.duoc.cliente_service.mapper.ClienteMapper;
 import cl.duoc.cliente_service.model.Cliente;
 import cl.duoc.cliente_service.reposity.ClienteRepository;
@@ -87,5 +88,19 @@ public class ClienteService {
         clienteActualizado.setDireccion(cliente.getDireccion());
 
         return clienteRepository.save(clienteActualizado);
+    }
+
+    public Cliente guardarCliente(Cliente cliente) {
+        // 1. Validación básica: Que no sea nulo
+        if (cliente.getCorreo() == null || cliente.getCorreo().trim().isEmpty()) {
+            throw new ClienteCorreoInvalidoException("El correo electrónico es obligatorio para el registro del cliente.");
+        }
+
+        // 2. Validación de negocio: Debe contener una estructura de correo básica con '@' y '.'
+        if (!cliente.getCorreo().contains("@") || !cliente.getCorreo().contains(".")) {
+            throw new ClienteCorreoInvalidoException("Formato de correo electrónico inválido. Debe contener un '@' y un dominio válido (Ej: cliente@correo.com).");
+        }
+
+        return clienteRepository.save(cliente);
     }
 }

@@ -2,6 +2,7 @@ package cl.duoc.cliente_service.controller;
 
 import cl.duoc.cliente_service.model.Cliente;
 import cl.duoc.cliente_service.service.ClienteService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +31,9 @@ public class ClienteController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registrar(@RequestBody Cliente cliente) {
-        return new ResponseEntity<>(clienteService.save(cliente), HttpStatus.CREATED);
+    public ResponseEntity<?> registrar(@Valid @RequestBody Cliente cliente) {
+        Cliente nuevoCliente = clienteService.guardarCliente(cliente);
+        return new ResponseEntity<>(nuevoCliente, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
@@ -48,6 +50,7 @@ public class ClienteController {
         }
         return ResponseEntity.ok(actualizado);
     }
+
 
     // Endpoint Reporte 1: GET -> http://localhost:8084/api/v1/clientes/reporte/rut?rut=12.345.678-9
     @GetMapping("/reporte/rut")
@@ -86,4 +89,5 @@ public class ClienteController {
     public ResponseEntity<?> listarPorNombre(@RequestParam String nombre) {
         return ResponseEntity.ok(clienteService.buscarPorNombre(nombre));
     }
+
 }
