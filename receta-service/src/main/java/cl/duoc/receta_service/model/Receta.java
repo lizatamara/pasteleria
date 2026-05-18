@@ -24,7 +24,7 @@ public class Receta {
 
     private String descripcion;
 
-    private int precio;
+    private Integer precio;
 
     private String categoria;
 

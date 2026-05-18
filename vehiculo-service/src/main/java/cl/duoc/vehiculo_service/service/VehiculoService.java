@@ -1,6 +1,7 @@
 package cl.duoc.vehiculo_service.service;
 
 import cl.duoc.vehiculo_service.dto.VehiculoDTO;
+import cl.duoc.vehiculo_service.exception.VehiculoCapacidadInvalidaException;
 import cl.duoc.vehiculo_service.mapper.VehiculoMapper;
 import cl.duoc.vehiculo_service.model.Vehiculo;
 import cl.duoc.vehiculo_service.repository.VehiculoRepository;
@@ -16,6 +17,41 @@ public class VehiculoService {
 
     @Autowired
     private VehiculoMapper mapper;
+
+    // AQUÍ VA EL METODO QUE ME MOSTRASTE:
+    public Vehiculo guardarVehiculo(Vehiculo vehiculo) {
+        // 1. Validación de negocio: No puede ser menor o igual a 0 kilos
+        if (vehiculo.getCapacidad_kilos() == null || vehiculo.getCapacidad_kilos() <= 0) {
+            throw new VehiculoCapacidadInvalidaException("La capacidad del vehículo debe ser mayor a 0 kilos.");
+        }
+
+        // 2. Validación de negocio: No permite camiones gigantes en la pastelería
+        if (vehiculo.getCapacidad_kilos() > 3500.0) {
+            throw new VehiculoCapacidadInvalidaException("No se permiten vehículos de alto tonelaje (máx 3500 kg) para el reparto de pastelería.");
+        }
+
+        // 3. Si pasa las dos alertas de arriba, recién guarda en la Base de Datos
+        return vehiculoRepository.save(vehiculo);
+    }
+
+
+
+
+    // Reporte 1: Por Patente
+    public Vehiculo buscarPorPatente(String patente) {
+        return vehiculoRepository.findByPatente(patente).orElse(null);
+    }
+
+    // Reporte 2: Por Marca
+    public List<Vehiculo> buscarPorMarca(String marca) {
+        return vehiculoRepository.findByMarcaContainingIgnoreCase(marca);
+    }
+
+    // Reporte 5: Por Modelo
+    public List<Vehiculo> buscarPorModelo(String modelo) {
+        return vehiculoRepository.findByModeloContainingIgnoreCase(modelo);
+    }
+
 
     // Trae todos los vehículos de la base de datos
     public List<Vehiculo> findAll() {

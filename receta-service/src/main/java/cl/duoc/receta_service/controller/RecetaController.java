@@ -2,6 +2,7 @@ package cl.duoc.receta_service.controller;
 
 import cl.duoc.receta_service.model.Receta;
 import cl.duoc.receta_service.service.RecetaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +30,12 @@ public class RecetaController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registrar(@RequestBody Receta receta) {
-        return new ResponseEntity<>(recetaService.save(receta), HttpStatus.CREATED);
+    public ResponseEntity<?> registrar(@Valid @RequestBody Receta receta) {
+        // Llama al método validado que creamos en el servicio
+        Receta nuevaReceta = recetaService.guardarReceta(receta);
+        return new ResponseEntity<>(nuevaReceta, HttpStatus.CREATED);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> borrar(@PathVariable Long id) {
@@ -48,6 +52,28 @@ public class RecetaController {
         return ResponseEntity.ok(actualizada);
     }
 
+    // filtrar por categoria
+    // Endpoint Reporte 1: GET -> /api/v1/recetas/reporte/categoria?categoria=Tortas
+    @GetMapping("/reporte/categoria")
+    public ResponseEntity<?> listarPorCategoria(@RequestParam String categoria) {
+        return ResponseEntity.ok(recetaService.buscarPorCategoria(categoria));
+    }
+
+    //precio maximo
+
+    // Endpoint Reporte 2: GET -> /api/v1/recetas/reporte/baratos?precio=15000
+    @GetMapping("/reporte/baratos")
+    public ResponseEntity<?> listarPorPrecioMaximo(@RequestParam Integer precio) {
+        return ResponseEntity.ok(recetaService.buscarPorPrecioMaximo(precio));
+    }
+
+
+
+    // Endpoint Reporte 3: GET -> /api/vi/recetas/reporte/buscar?nombre=Pie de Limón
+    @GetMapping("/reporte/buscar")
+    public ResponseEntity<?> buscarPorNombre(@RequestParam String nombre) {
+        return ResponseEntity.ok(recetaService.buscarPorNombre(nombre));
+    }
 
 
 }
