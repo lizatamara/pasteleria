@@ -48,4 +48,42 @@ public class ClienteController {
         }
         return ResponseEntity.ok(actualizado);
     }
+
+    // Endpoint Reporte 1: GET -> http://localhost:8084/api/v1/clientes/reporte/rut?rut=12.345.678-9
+    @GetMapping("/reporte/rut")
+    public ResponseEntity<?> obtenerPorRut(@RequestParam String rut) {
+        Cliente cliente = clienteService.buscarPorRut(rut);
+        if (cliente == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente no encontrado");
+        }
+        return ResponseEntity.ok(cliente);
+    }
+
+    // Endpoint Reporte 2: GET -> /api/v1/clientes/reporte/comuna?comuna=La Florida
+    @GetMapping("/reporte/comuna")
+    public ResponseEntity<?> listarPorComuna(@RequestParam String comuna) {
+        return ResponseEntity.ok(clienteService.buscarPorComuna(comuna));
+    }
+
+    // Endpoint Reporte 3: GET -> /api/v1/clientes/reporte/apellido?apellido=Perez
+    @GetMapping("/reporte/apellido")
+    public ResponseEntity<?> listarPorApellido(@RequestParam String apellido) {
+        return ResponseEntity.ok(clienteService.buscarPorApellido(apellido));
+    }
+
+    // Endpoint Reporte 4: GET -> /api/v1/clientes/reporte/email?email=juan.perez@email.com
+    @GetMapping("/reporte/email")
+    public ResponseEntity<?> obtenerPorEmail(@RequestParam String email) {
+        Cliente cliente = clienteService.buscarPorEmail(email); // El servicio que arreglamos arriba
+        if (cliente == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente no encontrado con ese correo");
+        }
+        return ResponseEntity.ok(cliente);
+    }
+
+    // Endpoint Reporte 5: GET -> /api/v1/clientes/reporte/nombre?nombre=Juan
+    @GetMapping("/reporte/nombre")
+    public ResponseEntity<?> listarPorNombre(@RequestParam String nombre) {
+        return ResponseEntity.ok(clienteService.buscarPorNombre(nombre));
+    }
 }

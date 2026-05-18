@@ -3,7 +3,7 @@ package cl.duoc.cliente_service.service;
 import cl.duoc.cliente_service.dto.ClienteDTO;
 import cl.duoc.cliente_service.mapper.ClienteMapper;
 import cl.duoc.cliente_service.model.Cliente;
-import cl.duoc.cliente_service.repository.ClienteRepository;
+import cl.duoc.cliente_service.reposity.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +21,40 @@ public class ClienteService {
     public List<Cliente> findAll() {
         return clienteRepository.findAll();
     }
+
+
+    // Reporte 1: Buscar por RUT
+    public Cliente buscarPorRut(String rut) {
+        return clienteRepository.findByRut(rut).orElse(null);
+    }
+
+    // Reporte 2: Buscar por Comuna/Dirección
+    public List<Cliente> buscarPorComuna(String comuna) {
+        return clienteRepository.findByDireccionContainingIgnoreCase(comuna);
+    }
+
+    // Reporte 3: Buscar por Apellido
+    public List<Cliente> buscarPorApellido(String apellido) {
+        return clienteRepository.findByApellidoContainingIgnoreCase(apellido);
+    }
+
+    // Reporte 4: Buscar por Email
+    public Cliente buscarPorEmail(String correo) {
+        return clienteRepository.findByCorreo(correo).orElse(null);
+    }
+
+    // Reporte 5: Buscar por Nombre
+    public List<Cliente> buscarPorNombre(String nombre) {
+        return clienteRepository.findByNombreContainingIgnoreCase(nombre);
+    }
+
+
+
+
+
+
+
+
 
     // Busca un cliente por ID y lo transforma a DTO
     public ClienteDTO findById(Long id) {
