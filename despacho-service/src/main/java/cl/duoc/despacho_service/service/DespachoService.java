@@ -6,9 +6,12 @@ import cl.duoc.despacho_service.dto.DespachoDTO;
 import cl.duoc.despacho_service.mapper.DespachoMapper;
 import cl.duoc.despacho_service.model.Despacho;
 import cl.duoc.despacho_service.repository.DespachoRepository;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +32,6 @@ public class DespachoService {
     public List<DespachoDTO> findAll() {
         // 1. Buscamos todos los despachos de la base de datos
         List<Despacho> despachos = despachoRepository.findAll();
-
 
 
         // 2. Recorremos la lista para transformarlos a DTO y cargarles el Chofer vía Feign
@@ -53,8 +55,6 @@ public class DespachoService {
         }).collect(Collectors.toList());
 
     }
-
-
 
 
 // ==========================================
@@ -137,4 +137,6 @@ public class DespachoService {
 
         return despachoRepository.save(despachoActualizado);
     }
+
+
 }

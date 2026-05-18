@@ -35,7 +35,7 @@ public class DespachoController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registrar(@Valid @RequestBody Despacho despacho) {
+    public ResponseEntity<?> registrar(@Valid @RequestBody Despacho despacho) { // <-- Agregamos @Valid aquí
         return new ResponseEntity<>(despachoService.save(despacho), HttpStatus.CREATED);
     }
 
@@ -46,13 +46,16 @@ public class DespachoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody Despacho despacho) {
+    public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody Despacho despacho) {
         Despacho despachoModificado = despachoService.update(id, despacho);
         if (despachoModificado == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(despachoModificado);
     }
+
+
+
 
     // Endpoint Reporte 1: GET -> /api/v1/despachos/reporte/estado?estado=En camino
     @GetMapping("/reporte/estado")
@@ -87,5 +90,7 @@ public class DespachoController {
     public ResponseEntity<List<Despacho>> listarPorChofer(@RequestParam Long choferId) {
         return ResponseEntity.ok(despachoService.buscarPorChofer(choferId));
     }
+
+
 
 }
