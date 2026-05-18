@@ -1,6 +1,7 @@
 package cl.duoc.administrador_service.service;
 
 import cl.duoc.administrador_service.dto.AdministradorDTO;
+import cl.duoc.administrador_service.exception.AdministradorPasswordInvalidaException;
 import cl.duoc.administrador_service.mapper.AdministradorMapper;
 import cl.duoc.administrador_service.model.Administrador;
 import cl.duoc.administrador_service.reposity.AdministradorResposity;
@@ -72,5 +73,19 @@ public class AdministradorService {
 
         return administradorResposity.save(adminExistente);
     }
+    public Administrador guardarAdministrador(Administrador admin) {
+        // 1. Validación básica: Que no esté vacía
+        if (admin.getPassword() == null || admin.getPassword().trim().isEmpty()) {
+            throw new AdministradorPasswordInvalidaException("La contraseña es un campo obligatorio para el administrador.");
+        }
+
+        // 2. REGLA REVISADA: Si el largo es MENOR (<) a 8, entonces es un error.
+        if (admin.getPassword().trim().length() < 8) {
+            throw new AdministradorPasswordInvalidaException("Contraseña insegura. Por políticas de seguridad de la pastelería, la contraseña debe tener un mínimo de 8 caracteres.");
+        }
+
+        return administradorResposity.save(admin);
+    }
+
 
 }

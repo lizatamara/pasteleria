@@ -31,8 +31,10 @@ public class AdministradorController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registrar(@Valid @RequestBody Administrador administrador) {
-        return new ResponseEntity<>(administradorService.save(administrador), HttpStatus.CREATED);
+    public ResponseEntity<?> registrar(@Valid @RequestBody Administrador admin) {
+        // CORRECCIÓN: Aquí llamamos al servicio para que ejecute las validaciones
+        Administrador nuevoAdmin = administradorService.guardarAdministrador(admin);
+        return new ResponseEntity<>(nuevoAdmin, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
@@ -76,5 +78,7 @@ public class AdministradorController {
     public ResponseEntity<?> listarPorApellido(@RequestParam String apellido) {
         return ResponseEntity.ok(administradorService.buscarPorApellido(apellido));
     }
+
+
 
 }
