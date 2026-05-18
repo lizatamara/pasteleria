@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 
 import java.time.LocalDate;
-@JsonPropertyOrder({ "id", "estado_despacho", "direccion_entrege", "fecha_estimada" }) // <-- ¡Agregado "chofer" aquí al final!
+@JsonPropertyOrder({ "id", "estado_despacho", "direccion_entrega", "fecha_estimada" }) // <-- ¡Agregado "chofer" aquí al final!
 @Data
 public class DespachoDTO {
     private Long id;
@@ -14,8 +14,8 @@ public class DespachoDTO {
     @JsonProperty("estado_despacho")
     private String estadoDespacho;
 
-    @JsonProperty("direccion_entrege")
-    private String direccionEntrege;
+    @JsonProperty("direccion_entrega")
+    private String direccionEntrega;
 
     @JsonProperty("fecha_estimada")
     private String fechaEstimada; // String evita que Feign se caiga por la fecha

@@ -30,6 +30,8 @@ public class DespachoService {
         // 1. Buscamos todos los despachos de la base de datos
         List<Despacho> despachos = despachoRepository.findAll();
 
+
+
         // 2. Recorremos la lista para transformarlos a DTO y cargarles el Chofer vía Feign
         return despachos.stream().map(despacho -> {
             // Transformamos la entidad a DTO básico
@@ -50,6 +52,48 @@ public class DespachoService {
             return despachoDTO;
         }).collect(Collectors.toList());
 
+    }
+
+
+
+
+// ==========================================
+    //          Endpoints de Reportes
+    // ==========================================
+
+    // Reporte 1: Por Estado
+    public List<Despacho> buscarPorEstado(String estado) {
+        return despachoRepository.findAll().stream()
+                .filter(d -> d.getEstado_despacho() != null && d.getEstado_despacho().equalsIgnoreCase(estado))
+                .collect(Collectors.toList());
+    }
+
+    // Reporte 2: Por Comuna
+    public List<Despacho> buscarPorComuna(String comuna) {
+        return despachoRepository.findAll().stream()
+                .filter(d -> d.getDireccion_entrega() != null && d.getDireccion_entrega().toLowerCase().contains(comuna.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    // Reporte 3: Por Fecha exacta
+    public List<Despacho> buscarPorFecha(java.time.LocalDate fecha) {
+        return despachoRepository.findAll().stream()
+                .filter(d -> d.getFecha_estimada() != null && d.getFecha_estimada().equals(fecha))
+                .collect(Collectors.toList());
+    }
+
+    // Reporte 4: Por Fechas futuras
+    public List<Despacho> buscarPorFechasFuturas(java.time.LocalDate fecha) {
+        return despachoRepository.findAll().stream()
+                .filter(d -> d.getFecha_estimada() != null && !d.getFecha_estimada().isBefore(fecha))
+                .collect(Collectors.toList());
+    }
+
+    // Reporte 5: Por ID de Chofer
+    public List<Despacho> buscarPorChofer(Long choferId) {
+        return despachoRepository.findAll().stream()
+                .filter(d -> d.getChofer() != null && d.getChofer().equals(choferId))
+                .collect(Collectors.toList());
     }
 
     public DespachoDTO findById(Long id) {
@@ -90,7 +134,6 @@ public class DespachoService {
         despachoActualizado.setEstado_despacho(despacho.getEstado_despacho());
         despachoActualizado.setDireccion_entrega(despacho.getDireccion_entrega());
         despachoActualizado.setFecha_estimada(despacho.getFecha_estimada());
-        despachoActualizado.setChofer(despacho.getChofer());
 
         return despachoRepository.save(despachoActualizado);
     }
