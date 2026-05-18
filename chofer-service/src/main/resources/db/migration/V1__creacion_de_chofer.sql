@@ -5,5 +5,5 @@ CREATE TABLE chofer (
                             apellido VARCHAR(100),
                             tipo_licencia VARCHAR(2),
                             telefono VARCHAR(12),
-                            vehiculo BIGINT
+                            vehiculoId BIGINT
 );

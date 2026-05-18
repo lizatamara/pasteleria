@@ -1,10 +1,7 @@
 package cl.duoc.chofer_service.model;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +21,7 @@ public class Chofer {
     private String apellido;
     private String tipo_licencia;
     private String telefono;
-    private Long vehiculo;
+    @Column(name = "vehiculoId")
+    private Long vehiculoId;
 
 }

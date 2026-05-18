@@ -33,9 +33,9 @@ public class ChoferService {
             ChoferDTO choferDTO = mapper.toDTO(chofer);
 
             // 2. Si el chofer tiene un vehículo asociado, lo buscamos vía Feign
-            if (chofer.getVehiculo() != null) {
+            if (chofer.getVehiculoId() != null) {
                 try {
-                    VehiculoDTO vehiculoDTO = vehiculoFeign.obtenerVehiculo(chofer.getVehiculo());
+                    VehiculoDTO vehiculoDTO = vehiculoFeign.obtenerVehiculo(chofer.getVehiculoId());
                     choferDTO.setVehiculo(vehiculoDTO);
                 } catch (Exception e) {
                     // Preventivo: si el microservicio de vehículos no responde o falla,
@@ -53,9 +53,9 @@ public class ChoferService {
 
         ChoferDTO choferDTO = mapper.toDTO(chofer);
 
-        if (chofer.getVehiculo() != null) {
+        if (chofer.getVehiculoId() != null) {
             try {
-                VehiculoDTO vehiculoDTO = vehiculoFeign.obtenerVehiculo(chofer.getVehiculo());
+                VehiculoDTO vehiculoDTO = vehiculoFeign.obtenerVehiculo(chofer.getVehiculoId());
                 choferDTO.setVehiculo(vehiculoDTO);
             } catch (Exception e) {
                 choferDTO.setVehiculo(null);
@@ -82,7 +82,7 @@ public class ChoferService {
         choferActualizado.setApellido(chofer.getApellido());
         choferActualizado.setTipo_licencia(chofer.getTipo_licencia());
         choferActualizado.setTelefono(chofer.getTelefono());
-        choferActualizado.setVehiculo(chofer.getVehiculo());
+        choferActualizado.setVehiculoId(chofer.getVehiculoId());
 
         return choferRepository.save(choferActualizado);
     }

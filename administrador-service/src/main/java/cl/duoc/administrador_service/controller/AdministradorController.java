@@ -49,4 +49,32 @@ public class AdministradorController {
         }
         return ResponseEntity.ok(actualizado);
     }
+
+    // Endpoint Reporte 1: GET -> /api/v1/administradores/reporte/rut?rut=10.222.333-4
+    @GetMapping("/reporte/rut")
+    public ResponseEntity<?> obtenerPorRut(@RequestParam String rut) {
+        Administrador admin = administradorService.buscarPorRut(rut);
+        if (admin == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Administrador no encontrado");
+        }
+        return ResponseEntity.ok(admin);
+    }
+
+    // Endpoint Reporte 2: GET -> /api/v1/administradores/reporte/email?email=claudia.r@email.com
+    @GetMapping("/reporte/email")
+    public ResponseEntity<?> obtenerPorEmail(@RequestParam String email) {
+        Administrador admin = administradorService.buscarPorEmail(email);
+        if (admin == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email no registrado");
+        }
+        return ResponseEntity.ok(admin);
+    }
+
+    // Endpoint Reporte 3: GET -> /api/v1/administradores/reporte/apellido?apellido=Rojas
+
+    @GetMapping("/reporte/apellido")
+    public ResponseEntity<?> listarPorApellido(@RequestParam String apellido) {
+        return ResponseEntity.ok(administradorService.buscarPorApellido(apellido));
+    }
+
 }

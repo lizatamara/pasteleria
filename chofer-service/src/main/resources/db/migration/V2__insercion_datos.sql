@@ -1,4 +1,4 @@
-INSERT INTO chofer (rut, nombre, apellido, tipo_licencia, telefono, vehiculo) VALUES
+INSERT INTO chofer (rut, nombre, apellido, tipo_licencia, telefono, vehiculoId) VALUES
 ('12345678-9', 'Carlos', 'Muñoz', 'B', '912345678', 1),
 ('98765432-1', 'Fernanda', 'Rojas', 'A1', '923456789', 2),
 ('11222333-4', 'Matías', 'Soto', 'B', '934567891', 3),

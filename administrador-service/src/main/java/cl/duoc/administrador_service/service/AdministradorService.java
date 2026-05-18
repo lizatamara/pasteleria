@@ -22,6 +22,25 @@ public class AdministradorService {
         return administradorResposity.findAll();
     }
 
+    // Reporte 1: Por RUT
+    public Administrador buscarPorRut(String rut) {
+        return administradorResposity.findByRut(rut).orElse(null);
+    }
+
+    // Reporte 2: Por Email
+    public Administrador buscarPorEmail(String email) {
+        return administradorResposity.findByEmail(email).orElse(null);
+    }
+
+    // Reporte 3: Por Apellido
+    public List<Administrador> buscarPorApellido(String apellido) {
+        return administradorResposity.findByApellidoContainingIgnoreCase(apellido);
+    }
+
+
+
+
+
     // Busca un administrador por ID y lo transforma a DTO
     public AdministradorDTO findById(Long id) {
         Administrador administrador = administradorResposity.findById(id).orElse(null);
